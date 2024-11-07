@@ -1,0 +1,99 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Mengatur konten ke tengah secara vertikal */
+    align-items: center; /* Mengatur konten ke tengah secara horizontal */
+    height: 100vh;
+    margin: 0;
+    background-image: url('images.png'); 
+    background-size: cover; /* Mengubah ukuran gambar agar menutupi seluruh area */
+    background-position: center; /* Memusatkan gambar */
+    background-repeat: no-repeat; /* Menghindari pengulangan gambar */
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden; /* Agar tidak ada scroll */
+    transition: background-color 0.1s ease; /* Transisi untuk latar belakang */
+}
+
+#clock {
+    font-size: 10vw; /* Ukuran font responsif */
+    padding: 20px; 
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    z-index: 2; /* Pastikan jam berada di atas partikel */
+}
+
+/* Media Queries untuk perangkat lebih kecil */
+@media (max-width: 600px) {
+    #clock {
+        font-size: 8vw; /* Ukuran font lebih kecil pada perangkat kecil */
+    }
+}
+
+#date {
+    font-size: 3em;
+    margin-top: 30px;
+    text-align: center;
+    z-index: 2; /* Pastikan tanggal berada di atas partikel */
+}
+
+#runningText {
+    margin-top: 20px;
+    font-size: 3em;
+    color: yellow;
+    display: none; /* Awalnya disembunyikan */
+    text-align: center;
+    z-index: 2; /* Pastikan teks berjalan berada di atas partikel */
+}
+
+#nextPrayerText {
+    font-size: 2em;
+    color: yellow;
+    margin-top: 10px;
+    text-align: center;
+    z-index: 2; /* Pastikan waktu sholat berada di atas partikel */
+}
+
+.prayer-time {
+    color: yellow; /* Ubah warna jam menjadi kuning saat waktu adzan */
+    transition: color 0.5s ease; /* Transisi halus untuk perubahan warna */
+    z-index: 2;
+}
+
+.seconds {
+    color: red; /* Warna merah untuk detik */
+    z-index: 2;
+}
+
+.footer {
+    text-align: center; /* Untuk menengahkan teks */
+    position: fixed; /* Agar footer tetap di bawah */
+    bottom: 0; /* Menempatkan footer di bagian bawah */
+    width: 100%; /* Lebar 100% dari layar */
+    color: #5f8bf9; 
+    padding: 10px 0; /* Jarak atas dan bawah */
+    font-family: 'Droid Arabic Naskh', serif;
+    z-index: 2; /* Pastikan footer berada di atas partikel */
+}
+
+#particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Pastikan partikel berada di belakang konten */
+}
+
+/* refresh halaman */
+.fade-in {
+    opacity: 0; /* Tidak terlihat */
+    transform: translateY(30px); /* Posisi awal di bawah */
+    transition: opacity 2s ease-in-out, transform 2s ease-in-out; /* Durasi transisi 2 detik */
+}
+
+/* Setelah kelas 'fade-in-visible' ditambahkan, elemen muncul dari bawah */
+.fade-in-visible {
+    opacity: 1; /* Elemen menjadi terlihat */
+    transform: translateY(0); /* Elemen bergerak ke posisi normal */
+}
+
+

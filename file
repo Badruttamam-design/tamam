@@ -1,0 +1,113 @@
+// backup script.js jika audio tidak jalan
+
+function showPrayerTimeMessage(hours, minutes, currentDay) {
+    const prayerTimes = {
+        "Subuh": { hour: 3, minute: 47 },
+        "Dhuhur": { hour: 11, minute: 16 },
+        "Ashar": { hour: 14, minute: 26 },
+        "Maghrib": { hour: 17, minute: 25 },
+        "Isya": { hour: 18, minute: 36 },
+        "Jumat": { hour: 11, minute: 17 } // Waktu azan Jumat
+    };
+
+    const currentTimeInMinutes = parseInt(hours) * 60 + parseInt(minutes);
+    let nextPrayer = null;
+    let currentPrayer = null;
+
+    // Mencari waktu adzan saat ini dan selanjutnya
+    for (const [prayer, time] of Object.entries(prayerTimes)) {
+        const prayerTimeInMinutes = time.hour * 60 + time.minute;
+    
+        // Pengecekan untuk adzan Jumaat
+        if (currentDay === "Jumat") {
+            // Cek apakah waktu sekarang lebih kecil dari waktu Dhuhur Jumat
+            if (prayer === "Dhuhur" && currentTimeInMinutes < prayerTimes["Jumat"].hour * 60 + prayerTimes["Jumat"].minute) {
+                nextPrayer = "Jumat"; // Set next prayer ke Jumat
+                break; // Keluar dari loop
+            }
+            // Abaikan Dhuhur di hari selain Jumat
+            if (prayer === "Jumat") {
+                continue; // Abaikan jika bukan hari Jumat
+            }
+        }
+
+        if (prayerTimeInMinutes === currentTimeInMinutes) {
+            currentPrayer = prayer; // Menyimpan adzan yang sedang berlangsung
+        } else if (prayerTimeInMinutes > currentTimeInMinutes && !nextPrayer) {
+            nextPrayer = prayer; // Menyimpan adzan selanjutnya
+        }
+    }
+
+    // Jika semua waktu azan sudah berlalu, tampilkan azan pertama di hari berikutnya
+    if (!nextPrayer) {
+        nextPrayer = Object.keys(prayerTimes)[0];
+    }
+
+    const nextPrayerTime = prayerTimes[nextPrayer];
+    const nextPrayerInMinutes = nextPrayerTime.hour * 60 + nextPrayerTime.minute;
+    const minutesUntilNextPrayer = nextPrayerInMinutes - currentTimeInMinutes;
+
+    if (minutesUntilNextPrayer < 0) {
+        minutesUntilNextPrayer += 24 * 60; // Menambah 24 jam jika waktu sudah lewat
+    }
+
+    const hoursUntilNextPrayer = Math.floor(minutesUntilNextPrayer / 60);
+    const minutesRemaining = minutesUntilNextPrayer % 60;
+
+    // Format waktu dalam bentuk HH:MM
+    const timeRemainingFormatted = `${String(hoursUntilNextPrayer).padStart(2, '0')}:${String(minutesRemaining).padStart(2, '0')}`;
+
+    const runningText = document.getElementById('runningText');
+    const nextPrayerText = document.getElementById('nextPrayerText');
+    const clock = document.getElementById('clock');
+
+    if (currentPrayer) {
+        runningText.textContent = `Sekarang Sudah Masuk Waktu Adzan Sholat ${currentPrayer}!`;
+        runningText.style.display = 'block'; // Tampilkan waktu sholat saat ini
+        nextPrayerText.style.display = 'none'; // Sembunyikan waktu adzan selanjutnya
+        
+        // Tambahkan kelas untuk menandai waktu adzan
+        clock.classList.add('prayer-time');
+    } else {
+        runningText.style.display = 'none'; // Sembunyikan jika tidak ada
+        nextPrayerText.textContent = `Adzan ${nextPrayer} Kurang ${timeRemainingFormatted}`;
+        nextPrayerText.style.display = 'block'; // Tampilkan waktu adzan selanjutnya
+        
+        // Hapus kelas jika bukan waktu adzan
+        clock.classList.remove('prayer-time');
+    }
+}
+
+// Fungsi untuk memperbarui waktu dan tanggal
+function updateTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0'); // Jam 24
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const currentTime = `${hours}:${minutes}:<span class="seconds">${seconds}</span>`; // Format 24 jam
+
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const currentDate = now.toLocaleDateString('id-ID', options);
+    const days = ["Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const currentDay = days[now.getDay()];
+
+    document.getElementById('clock').innerHTML = currentTime;
+    document.getElementById('date').textContent = `${currentDay}, ${currentDate}`;
+
+    showPrayerTimeMessage(hours, minutes, currentDay);
+    changeBorderColor(seconds); // Ubah warna border berdasarkan detik
+}
+
+function changeBorderColor(seconds) {
+    const clockElement = document.getElementById('clock');
+
+    // Menghitung nilai warna berdasarkan detik (0-59)
+    const colorValue = Math.floor((seconds / 60) * 360); // Mengonversi detik ke sudut warna
+    const color = `hsl(${colorValue}, 100%, 50%)`; // Menggunakan HSL untuk variasi warna
+
+    clockElement.style.border = `11px solid ${color}`; // Ganti 5px dengan ketebalan border yang diinginkan
+}
+
+setInterval(updateTime, 1000); // Memperbarui waktu setiap detik
+updateTime(); // Memanggil fungsi untuk pertama kali
