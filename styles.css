@@ -26,15 +26,21 @@ body {
 /* Media Queries untuk perangkat lebih kecil */
 @media (max-width: 600px) {
     #clock {
-        font-size: 8vw; /* Ukuran font lebih kecil pada perangkat kecil */
+        font-size: 15vw; /* Ukuran font lebih kecil pada perangkat kecil */
     }
 }
 
+
 #date {
-    font-size: 3em;
+    font-size: 4em;
     margin-top: 30px;
     text-align: center;
     z-index: 2; /* Pastikan tanggal berada di atas partikel */
+}
+@media (max-width: 600px) {
+    #date {
+        font-size: 1.5em;
+    }
 }
 
 #runningText {
@@ -45,13 +51,23 @@ body {
     text-align: center;
     z-index: 2; /* Pastikan teks berjalan berada di atas partikel */
 }
+@media (max-width: 600px) {
+    #runningText {
+        font-size: 1.5em;
+    }
+}
 
 #nextPrayerText {
-    font-size: 2em;
+    font-size: 3em;
     color: yellow;
     margin-top: 10px;
     text-align: center;
     z-index: 2; /* Pastikan waktu sholat berada di atas partikel */
+}
+@media (max-width: 600px) {
+    #nextPrayerText {
+        font-size: 1.5em;
+    }
 }
 
 .prayer-time {

@@ -162,14 +162,21 @@ function updateTime() {
 }
 
 
-// Mengubah warna border berdasarkan detik
 function changeBorderColor(seconds) {
     const clockElement = document.getElementById('clock');
     const colorValue = Math.floor((seconds / 60) * 360); 
     const color = `hsl(${colorValue}, 100%, 50%)`; 
 
-    clockElement.style.border = `11px solid ${color}`; 
+    // Menentukan ukuran border berdasarkan lebar layar
+    let borderWidth = 11;  // Default border untuk layar besar
+    if (window.innerWidth <= 600) {
+        borderWidth = 5;  // Ukuran border lebih kecil untuk layar kecil (<= 600px)
+    }
+
+    // Menerapkan border dinamis dengan ukuran yang sesuai
+    clockElement.style.border = `${borderWidth}px solid ${color}`;
 }
+
 
 setInterval(updateTime, 1000); 
 updateTime();
