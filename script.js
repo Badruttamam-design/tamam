@@ -1,11 +1,11 @@
 // Menampilkan pesan waktu sholat
 function showPrayerTimeMessage() {
     const prayerTimes = {
-        "Subuh": { hour: 3, minute: 43 },
-        "Dhuhur": { hour: 11, minute: 16 },
-        "Ashar": { hour: 14, minute: 32 },
-        "Maghrib": { hour: 17, minute: 27 },
-        "Isya": { hour: 18, minute: 39 },
+        "Subuh": { hour: 3, minute: 40 },
+        "Dhuhur": { hour: 11, minute: 17 },
+        "Ashar": { hour: 14, minute: 39 },
+        "Maghrib": { hour: 17, minute: 31 },
+        "Isya": { hour: 18, minute: 45 },
     };
 
     const currentTime = new Date();
@@ -29,7 +29,7 @@ function showPrayerTimeMessage() {
 
     // Jika sudah lewat semua waktu, tetapkan ke Subuh hari berikutnya
     if (!nextPrayer) {
-        if (currentTimeInMinutes > (3 * 60 + 43)) {
+        if (currentTimeInMinutes > (3 * 60 + 40)) {
             nextPrayer = "Subuh"; // Tetap gunakan azan Subuh
         }
     }
@@ -38,7 +38,7 @@ function showPrayerTimeMessage() {
     const nextPrayerDate = new Date(currentTime);
     
     // Tentukan tanggal untuk Subuh hari berikutnya jika sudah lewat
-    if (nextPrayer === "Subuh" && currentTimeInMinutes > (3 * 60 + 43)) {
+    if (nextPrayer === "Subuh" && currentTimeInMinutes > (3 * 60 + 40)) {
         nextPrayerDate.setDate(nextPrayerDate.getDate() + 1); // Set ke hari berikutnya
     }
 
@@ -59,7 +59,7 @@ function showPrayerTimeMessage() {
         clock.classList.add('prayer-time');
 
         // Memilih audio berdasarkan waktu sholat
-        audio.src = currentPrayer === "Subuh" ? "azan_subuh.mp3" : "azan.mp3";
+        audio.src = currentPrayer === "Subuh" ? "azan_subuh.mp3" : "adan.mp3";
         audio.currentTime = 0; 
         
         // Menunda 1 menit (60 detik) setelah waktu azan
