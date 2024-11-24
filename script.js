@@ -114,7 +114,7 @@ function playAudioAtSpecificTime() {
         // Tunda pemutaran audio selama 1 menit (setTimeout)
         setTimeout(() => {
             const audio = document.getElementById('azanAudio');
-            audio.src = "doa.mp3";  // Ganti dengan path audio yang sesuai
+            audio.src = "doa.mp3";  
             audio.currentTime = 0; // Mulai dari awal
 
             // Tentukan waktu pemutaran selama 5 menit
