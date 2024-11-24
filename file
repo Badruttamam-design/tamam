@@ -1,113 +1,98 @@
-// backup script.js jika audio tidak jalan
-
-function showPrayerTimeMessage(hours, minutes, currentDay) {
+// Menampilkan pesan waktu sholat
+function showPrayerTimeMessage() {
     const prayerTimes = {
-        "Subuh": { hour: 3, minute: 47 },
-        "Dhuhur": { hour: 11, minute: 16 },
-        "Ashar": { hour: 14, minute: 26 },
-        "Maghrib": { hour: 17, minute: 25 },
-        "Isya": { hour: 18, minute: 36 },
-        "Jumat": { hour: 11, minute: 17 } // Waktu azan Jumat
+        "Subuh": { hour: 3, minute: 40 },
+        "Dhuhur": { hour: 11, minute: 17 },
+        "Ashar": { hour: 14, minute: 39 },
+        "Maghrib": { hour: 17, minute: 31 },
+        "Isya": { hour: 18, minute: 45 },
     };
 
-    const currentTimeInMinutes = parseInt(hours) * 60 + parseInt(minutes);
-    let nextPrayer = null;
+    const currentTime = new Date();
+    const currentTimeInMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+    let nextPrayer = "Subuh"; // Default ke Subuh
     let currentPrayer = null;
 
     // Mencari waktu adzan saat ini dan selanjutnya
     for (const [prayer, time] of Object.entries(prayerTimes)) {
         const prayerTimeInMinutes = time.hour * 60 + time.minute;
-    
-        // Pengecekan untuk adzan Jumaat
-        if (currentDay === "Jumat") {
-            // Cek apakah waktu sekarang lebih kecil dari waktu Dhuhur Jumat
-            if (prayer === "Dhuhur" && currentTimeInMinutes < prayerTimes["Jumat"].hour * 60 + prayerTimes["Jumat"].minute) {
-                nextPrayer = "Jumat"; // Set next prayer ke Jumat
-                break; // Keluar dari loop
-            }
-            // Abaikan Dhuhur di hari selain Jumat
-            if (prayer === "Jumat") {
-                continue; // Abaikan jika bukan hari Jumat
-            }
-        }
 
         if (prayerTimeInMinutes === currentTimeInMinutes) {
-            currentPrayer = prayer; // Menyimpan adzan yang sedang berlangsung
-        } else if (prayerTimeInMinutes > currentTimeInMinutes && !nextPrayer) {
-            nextPrayer = prayer; // Menyimpan adzan selanjutnya
+            currentPrayer = prayer;
+            nextPrayer = null; // Jika sekarang waktu sholat, tidak perlu mencari yang berikutnya
+            break;
+        } else if (prayerTimeInMinutes > currentTimeInMinutes) {
+            nextPrayer = prayer;
+            break; // Dapatkan waktu sholat berikutnya
         }
     }
 
-    // Jika semua waktu azan sudah berlalu, tampilkan azan pertama di hari berikutnya
+    // Jika sudah lewat semua waktu, tetapkan ke Subuh hari berikutnya
     if (!nextPrayer) {
-        nextPrayer = Object.keys(prayerTimes)[0];
+        nextPrayer = "Subuh"; // Subuh pada hari berikutnya
     }
 
     const nextPrayerTime = prayerTimes[nextPrayer];
-    const nextPrayerInMinutes = nextPrayerTime.hour * 60 + nextPrayerTime.minute;
-    const minutesUntilNextPrayer = nextPrayerInMinutes - currentTimeInMinutes;
-
-    if (minutesUntilNextPrayer < 0) {
-        minutesUntilNextPrayer += 24 * 60; // Menambah 24 jam jika waktu sudah lewat
+    const nextPrayerDate = new Date(currentTime);
+    
+    // Tentukan tanggal untuk Subuh hari berikutnya jika sudah lewat
+    if (nextPrayer === "Subuh" && currentTimeInMinutes > (3 * 60 + 40)) {
+        nextPrayerDate.setDate(nextPrayerDate.getDate() + 1); // Set ke hari berikutnya
     }
 
-    const hoursUntilNextPrayer = Math.floor(minutesUntilNextPrayer / 60);
-    const minutesRemaining = minutesUntilNextPrayer % 60;
+    nextPrayerDate.setHours(nextPrayerTime.hour, nextPrayerTime.minute, 0, 0);
 
-    // Format waktu dalam bentuk HH:MM
-    const timeRemainingFormatted = `${String(hoursUntilNextPrayer).padStart(2, '0')}:${String(minutesRemaining).padStart(2, '0')}`;
+    // Hitung detik sampai azan berikutnya
+    let totalSecondsUntilNextPrayer = Math.floor((nextPrayerDate - currentTime) / 1000);
 
     const runningText = document.getElementById('runningText');
     const nextPrayerText = document.getElementById('nextPrayerText');
     const clock = document.getElementById('clock');
+    const audio = document.getElementById('azanAudio');
 
     if (currentPrayer) {
         runningText.textContent = `Sekarang Sudah Masuk Waktu Adzan Sholat ${currentPrayer}!`;
-        runningText.style.display = 'block'; // Tampilkan waktu sholat saat ini
-        nextPrayerText.style.display = 'none'; // Sembunyikan waktu adzan selanjutnya
-        
-        // Tambahkan kelas untuk menandai waktu adzan
+        runningText.style.display = 'block';
+        nextPrayerText.style.display = 'none'; 
         clock.classList.add('prayer-time');
-    } else {
-        runningText.style.display = 'none'; // Sembunyikan jika tidak ada
-        nextPrayerText.textContent = `Adzan ${nextPrayer} Kurang ${timeRemainingFormatted}`;
-        nextPrayerText.style.display = 'block'; // Tampilkan waktu adzan selanjutnya
+
+        // Memilih audio berdasarkan waktu sholat
+        audio.src = currentPrayer === "Subuh" ? "azan_subuh.mp3" : "adan.mp3";
+        audio.currentTime = 0; 
         
-        // Hapus kelas jika bukan waktu adzan
+        // Menunda 1 menit (60 detik) setelah waktu azan
+        setTimeout(() => {
+            audio.play();
+        }, 60000); // 60000 ms = 1 menit
+
+        // Pastikan running text tetap tampil selama audio diputar
+        audio.onplaying = function() {
+            runningText.style.display = 'block'; // Menampilkan running text
+        };
+        audio.onended = function() {
+            runningText.style.display = 'none'; // Menyembunyikan running text ketika audio selesai
+        };
+    } else {
+        runningText.style.display = 'none'; 
+        nextPrayerText.style.display = 'block'; 
         clock.classList.remove('prayer-time');
+
+        const updateNextPrayerText = () => {
+            const hoursRemaining = Math.floor(totalSecondsUntilNextPrayer / 3600);
+            const minutesRemaining = Math.floor((totalSecondsUntilNextPrayer % 3600) / 60);
+            const secondsRemaining = totalSecondsUntilNextPrayer % 60;
+
+            nextPrayerText.textContent = `Adzan ${nextPrayer} Kurang ${String(hoursRemaining).padStart(2, '0')}:${String(minutesRemaining).padStart(2, '0')}:${String(secondsRemaining).padStart(2, '0')}`;
+            totalSecondsUntilNextPrayer--;
+
+            if (totalSecondsUntilNextPrayer < 0) {
+                clearInterval(countdownInterval);
+                showPrayerTimeMessage(); // Perbarui pesan
+            }
+        };
+
+        updateNextPrayerText(); // Tampilkan waktu awal
+
+        const countdownInterval = setInterval(updateNextPrayerText, 1000);
     }
 }
-
-// Fungsi untuk memperbarui waktu dan tanggal
-function updateTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0'); // Jam 24
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-
-    const currentTime = `${hours}:${minutes}:<span class="seconds">${seconds}</span>`; // Format 24 jam
-
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const currentDate = now.toLocaleDateString('id-ID', options);
-    const days = ["Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const currentDay = days[now.getDay()];
-
-    document.getElementById('clock').innerHTML = currentTime;
-    document.getElementById('date').textContent = `${currentDay}, ${currentDate}`;
-
-    showPrayerTimeMessage(hours, minutes, currentDay);
-    changeBorderColor(seconds); // Ubah warna border berdasarkan detik
-}
-
-function changeBorderColor(seconds) {
-    const clockElement = document.getElementById('clock');
-
-    // Menghitung nilai warna berdasarkan detik (0-59)
-    const colorValue = Math.floor((seconds / 60) * 360); // Mengonversi detik ke sudut warna
-    const color = `hsl(${colorValue}, 100%, 50%)`; // Menggunakan HSL untuk variasi warna
-
-    clockElement.style.border = `11px solid ${color}`; // Ganti 5px dengan ketebalan border yang diinginkan
-}
-
-setInterval(updateTime, 1000); // Memperbarui waktu setiap detik
-updateTime(); // Memanggil fungsi untuk pertama kali

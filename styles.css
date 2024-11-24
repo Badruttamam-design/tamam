@@ -80,6 +80,10 @@ body {
     color: red; /* Warna merah untuk detik */
     z-index: 2;
 }
+.minutes{
+    color: yellow; /* Warna merah untuk detik */
+    z-index: 2;
+}
 
 .footer {
     text-align: center; /* Untuk menengahkan teks */

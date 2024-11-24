@@ -99,41 +99,49 @@ function showPrayerTimeMessage() {
     }
 }
 
-// Menambahkan logika untuk memutar audio otomatis pada pukul 3:01
+let audioStarted = false; // Flag untuk memastikan audio hanya dimainkan sekali
+
 function playAudioAtSpecificTime() {
     const currentTime = new Date();
     const targetHour = 3;
     const targetMinute = 1;
+    
+    // Mengecek apakah sekarang tepat pukul 3:01 dan audio belum diputar
+    if (currentTime.getHours() === targetHour && currentTime.getMinutes() === targetMinute && !audioStarted) {
+        // Menunggu 1 menit setelah waktu 3:01, jadi audio diputar pada pukul 3:02
+        const delay = 60 * 1000; // 1 menit dalam milidetik (60 detik * 1000 ms)
 
-    // Mengecek apakah sekarang pukul 3:01
-    if (currentTime.getHours() === targetHour && currentTime.getMinutes() === targetMinute) {
-        const audio = document.getElementById('azanAudio');
-        audio.src = "doa.mp3";  // Ganti dengan path audio yang sesuai
-        audio.currentTime = 0; // Mulai dari awal
-        
-        // Tentukan waktu pemutaran selama 5 menit
-        const playEndTime = Date.now() + (5 * 60 * 1000); // 5 menit = 5 * 60 * 1000 ms
-        
-        // Fungsi untuk memutar audio dalam loop selama 5 menit
-        function playAudioLoop() {
-            // Jika waktu lebih dari 5 menit, berhenti
-            if (Date.now() >= playEndTime) {
-                audio.pause();  // Hentikan audio
-                return;
+        // Tunda pemutaran audio selama 1 menit (setTimeout)
+        setTimeout(() => {
+            const audio = document.getElementById('azanAudio');
+            audio.src = "doa.mp3";  // Ganti dengan path audio yang sesuai
+            audio.currentTime = 0; // Mulai dari awal
+
+            // Tentukan waktu pemutaran selama 5 menit
+            const playEndTime = Date.now() + (5 * 60 * 1000); // 5 menit = 5 * 60 * 1000 ms
+            
+            // Fungsi untuk memutar audio dalam loop selama 5 menit
+            function playAudioLoop() {
+                if (Date.now() >= playEndTime) {
+                    audio.pause();  // Hentikan audio setelah 5 menit
+                    audioStarted = false; // Reset flag setelah selesai
+                    return;
+                }
+
+                audio.play();  // Putar audio
+                audio.onended = function() {
+                    audio.currentTime = 0;  // Mulai dari awal
+                    playAudioLoop();  // Panggil lagi untuk memutar audio berulang
+                };
             }
 
-            // Jika audio sudah selesai, putar lagi dari awal
-            audio.play();  // Putar audio
-            audio.onended = function() {
-                audio.currentTime = 0;  // Mulai dari awal
-                playAudioLoop();  // Panggil lagi untuk memutar audio berulang
-            };
-        }
-
-        // Mulai loop audio
-        playAudioLoop();
+            // Mulai loop audio
+            playAudioLoop();
+            audioStarted = true; // Tandai audio sudah diputar
+        }, delay);  // Delay selama 1 menit
     }
 }
+
 
 // Panggil fungsi ini dalam fungsi updateTime() atau sesuai kebutuhan
 function updateTime() {
@@ -142,7 +150,7 @@ function updateTime() {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
 
-    document.getElementById('clock').innerHTML = `${hours}:${minutes}:<span class="seconds">${seconds}</span>`;
+    document.getElementById('clock').innerHTML = `${hours}:<span class="minutes">${minutes}</span>:<span class="seconds">${seconds}</span>`;
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const currentDate = now.toLocaleDateString('id-ID', options);
     const days = ["Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
